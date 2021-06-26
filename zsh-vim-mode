@@ -1,0 +1,43 @@
+# bindkey -e will be emacs mode
+bindkey -v
+export KEYTIMEOUT=100
+
+# Use vim keys in tab complete menu:
+bindkey -M menuselect '^h' vi-backward-char
+bindkey -M menuselect '^k' vi-up-line-or-history
+bindkey -M menuselect '^l' vi-forward-char
+bindkey -M menuselect '^j' vi-down-line-or-history
+bindkey -v '^?' backward-delete-char
+
+# Change cursor shape for different vi modes.
+#### Why this workarund tho?
+function zle-keymap-select () {
+    case $KEYMAP in
+        vicmd) echo -ne '\e[1 q';;      # block
+        viins|main) echo -ne '\e[1 q';; # beam
+    esac
+}
+zle -N zle-keymap-select
+autoload -U select-bracketed
+zle -N select-bracketed
+ for m in visual viopp; do
+  for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+    bindkey -M $m $c select-bracketed
+  done
+done
+autoload -U select-quoted
+zle -N select-quoted
+ for m in visual viopp; do
+  for c in {a,i}{\',\",\`}; do
+    bindkey -M $m $c select-quoted
+  done
+done
+autoload -Uz surround
+zle -N delete-surround surround
+zle -N change-surround surround
+zle -N add-surround surround
+bindkey -a cs change-surround
+bindkey -a ds delete-surround
+bindkey -a ys add-surround
+bindkey -M visual S add-surround
+bindkey -M viins 'jk' vi-cmd-mode
